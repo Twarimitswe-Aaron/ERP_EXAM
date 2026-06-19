@@ -67,7 +67,8 @@ public class PayrollService {
             BigDecimal other = calculateAmount(baseSalary, othersRate);
             
             BigDecimal totalDeductions = tax.add(pension).add(medical).add(other);
-            BigDecimal netSalary = baseSalary.subtract(totalDeductions); // Formula from prompt: NetSalary = baseSalary - deductions
+            // NetSalary = Gross Salary - Total Deductions (as proven by the 57,800 example in the prompt)
+            BigDecimal netSalary = gross.subtract(totalDeductions);
 
             Payslip payslip = new Payslip();
             payslip.setEmpId(empId);
