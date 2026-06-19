@@ -1,7 +1,7 @@
 -- Drop existing trigger and function if they exist to allow clean recreation
-DROP TRIGGER IF EXISTS trg_after_payslip_insert ON payslip;
-DROP TRIGGER IF EXISTS trg_before_payslip_insert ON payslip;
-DROP FUNCTION IF EXISTS process_payslip_trigger();
+DROP TRIGGER IF EXISTS trg_after_payslip_insert ON payslip^
+DROP TRIGGER IF EXISTS trg_before_payslip_insert ON payslip^
+DROP FUNCTION IF EXISTS process_payslip_trigger()^
 
 -- Create the trigger function
 CREATE OR REPLACE FUNCTION process_payslip_trigger()
@@ -35,10 +35,10 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql^
 
 -- Create the trigger that fires BEFORE INSERT
 CREATE TRIGGER trg_before_payslip_insert
 BEFORE INSERT ON payslip
 FOR EACH ROW
-EXECUTE FUNCTION process_payslip_trigger();
+EXECUTE FUNCTION process_payslip_trigger()^

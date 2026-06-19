@@ -35,6 +35,13 @@ public class EmployeeService {
                 .toList();
     }
 
+    public Employee updateEmployment(UUID employeeId, Employment employmentDetails) {
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow();
+        Employment employment = employee.getEmployment();
+        if (employment == null) {
+            employment = new Employment();
+            employment.setEmployee(employee);
+        }
         employment.setDepartment(employmentDetails.getDepartment());
         employment.setPosition(employmentDetails.getPosition());
         employment.setJoiningDate(employmentDetails.getJoiningDate());

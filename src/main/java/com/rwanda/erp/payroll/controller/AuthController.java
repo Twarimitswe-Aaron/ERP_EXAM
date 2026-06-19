@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -31,7 +32,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "Register new employee", description = "Registers a new user and returns a JWT token. Automatically assigns EMPLOYEE role.")
-    public ResponseEntity<?> register(@RequestBody User request) {
+    public ResponseEntity<?> register(@Valid @RequestBody User request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             return ResponseEntity.badRequest().body("Error: Email is already registered!");
         }

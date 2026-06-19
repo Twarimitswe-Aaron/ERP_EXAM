@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/api/payroll")
 @RequiredArgsConstructor
 @Tag(name = "Payroll Management", description = "Endpoints for generating and viewing payslips")
-@RequiredArgsConstructor
 public class PayrollController {
 
     private final PayrollService payrollService;
