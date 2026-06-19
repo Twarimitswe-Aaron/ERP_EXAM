@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     Optional<Employee> findByUserEmail(String email);
-    java.util.List<Employee> findByEmploymentInstitutionAndEmploymentStatus(com.rwanda.erp.payroll.entity.Institution institution, String status);
+    java.util.List<Employee> findByEmploymentInstitutionAndStatus(com.rwanda.erp.payroll.entity.Institution institution, String status);
 }
