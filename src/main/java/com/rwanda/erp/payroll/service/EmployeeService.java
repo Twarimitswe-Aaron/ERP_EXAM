@@ -41,6 +41,12 @@ public class EmployeeService {
         Employee employee = employeeRepository.findById(employeeId).orElseThrow();
         com.rwanda.erp.payroll.entity.User adminUser = userRepository.findByEmail(adminEmail).orElseThrow();
         
+        if (employee.getUser() != null && "ADMIN".equals(employee.getUser().getRole())) {
+            if (employee.getUser().getEmail().equals(adminEmail)) {
+                throw new SecurityException("Admins cannot modify their own employment records. Please contact a Super Admin.");
+            }
+        }
+        
         Employment employment = employee.getEmployment();
         if (employment == null) {
             employment = new Employment();

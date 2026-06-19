@@ -33,6 +33,13 @@ public class PayrollController {
         return ResponseEntity.ok("Payroll generation triggered for " + request.getMonth() + "/" + request.getYear());
     }
 
+    @PostMapping("/generate/admins")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<?> generateAdminPayrolls(@RequestBody com.rwanda.erp.payroll.dto.PayrollRequest request) {
+        payrollService.generateAdminPayrolls(request.getMonth(), request.getYear());
+        return ResponseEntity.ok("Admin payroll generation initiated.");
+    }
+
     @GetMapping("/my-payslips")
     @Operation(summary = "Get my payslips", description = "Returns a detailed list of payslips for the authenticated employee.")
     public ResponseEntity<List<Payslip>> getMyPayslips(Authentication authentication) {

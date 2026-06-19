@@ -25,4 +25,7 @@ public class CreateAdminRequest {
 
     @NotNull(message = "Institution ID is required")
     private UUID institutionId;
+
+    @NotNull(message = "Base salary is required")
+    private java.math.BigDecimal baseSalary;
 }

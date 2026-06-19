@@ -33,20 +33,38 @@ public class PayrollService {
         Institution institution = admin.getInstitution();
         if (institution == null) throw new IllegalArgumentException("Admin has no assigned institution");
 
-        List<Employment> activeEmployments = employeeService.getActiveEmploymentsByInstitution(institution);
+        List<Employment> activeEmployments = employeeService.getActiveEmploymentsByInstitution(institution).stream()
+                .filter(emp -> emp.getEmployee().getUser() == null || !"ADMIN".equals(emp.getEmployee().getUser().getRole()))
+                .toList();
+        
+        processPayrollList(activeEmployments, month, year);
+    }
+
+    @Transactional
+    public void generateAdminPayrolls(Integer month, Integer year) {
+        // Super admin processes payroll for ALL Admins across ALL institutions
+        List<Employment> adminEmployments = employeeRepository.findAll().stream()
+                .filter(emp -> "Active".equals(emp.getStatus()) && emp.getEmployment() != null)
+                .filter(emp -> emp.getUser() != null && "ADMIN".equals(emp.getUser().getRole()))
+                .map(Employee::getEmployment)
+                .toList();
+                
+        processPayrollList(adminEmployments, month, year);
+    }
+
+    private void processPayrollList(List<Employment> employments, Integer month, Integer year) {
         List<Deduction> deductions = deductionService.getAllDeductions();
 
-        BigDecimal houseRate = getPercentage(deductionService.getDeductionByType(DeductionType.HOUSE, deductions));
-        BigDecimal transportRate = getPercentage(deductionService.getDeductionByType(DeductionType.TRANSPORT, deductions));
-        BigDecimal taxRate = getPercentage(deductionService.getDeductionByType(DeductionType.EMPLOYEE_TAX, deductions));
-        BigDecimal pensionRate = getPercentage(deductionService.getDeductionByType(DeductionType.PENSION, deductions));
-        BigDecimal medicalRate = getPercentage(deductionService.getDeductionByType(DeductionType.MEDICAL_INSURANCE, deductions));
-        BigDecimal othersRate = getPercentage(deductionService.getDeductionByType(DeductionType.OTHERS, deductions));
+        BigDecimal houseRate = getPercentageWithFallback(deductionService.getDeductionByType(DeductionType.HOUSE, deductions), "14");
+        BigDecimal transportRate = getPercentageWithFallback(deductionService.getDeductionByType(DeductionType.TRANSPORT, deductions), "14");
+        BigDecimal taxRate = getPercentageWithFallback(deductionService.getDeductionByType(DeductionType.EMPLOYEE_TAX, deductions), "30");
+        BigDecimal pensionRate = getPercentageWithFallback(deductionService.getDeductionByType(DeductionType.PENSION, deductions), "6");
+        BigDecimal medicalRate = getPercentageWithFallback(deductionService.getDeductionByType(DeductionType.MEDICAL_INSURANCE, deductions), "5");
+        BigDecimal othersRate = getPercentageWithFallback(deductionService.getDeductionByType(DeductionType.OTHERS, deductions), "4");
 
-        for (Employment employment : activeEmployments) {
+        for (Employment employment : employments) {
             UUID empId = employment.getEmployee().getId();
             
-            // Prevent duplicate payroll generation
             // Prevent duplicate payroll generation
             if (payslipRepository.existsByEmployeeIdAndMonthAndYear(empId, month, year)) {
                 continue; // Skip already generated
@@ -64,8 +82,7 @@ public class PayrollService {
             BigDecimal medical = calculateAmount(baseSalary, medicalRate);
             
             // Exam Rule: 45% total deductions. Since Tax(30) + Pension(6) + Medical(5) = 41%, Others must be exactly 4%.
-            BigDecimal othersRateAdjusted = new BigDecimal("4");
-            BigDecimal other = calculateAmount(baseSalary, othersRateAdjusted);
+            BigDecimal other = calculateAmount(baseSalary, othersRate);
             
             BigDecimal totalDeductions = tax.add(pension).add(medical).add(other);
             
@@ -117,8 +134,8 @@ public class PayrollService {
         return messageRepository.findByEmployeeId(employee.getId());
     }
 
-    private BigDecimal getPercentage(Deduction deduction) {
-        if (deduction == null || deduction.getPercentage() == null) return BigDecimal.ZERO;
+    private BigDecimal getPercentageWithFallback(Deduction deduction, String fallbackStr) {
+        if (deduction == null || deduction.getPercentage() == null) return new BigDecimal(fallbackStr);
         return deduction.getPercentage();
     }
 

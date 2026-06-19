@@ -63,8 +63,25 @@ public class AdminManagementController {
         employee.setEmail(request.getEmail());
         employee.setUser(user);
         employee.setStatus("Active");
+        employee.setBaseSalary(request.getBaseSalary());
+
+        var employment = new com.rwanda.erp.payroll.entity.Employment();
+        employment.setEmployee(employee);
+        employment.setInstitution(institution.get());
+        employee.setEmployment(employment);
+        
         employeeRepository.save(employee);
 
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/{userId}/salary")
+    @Operation(summary = "Update an Institution Admin's Base Salary")
+    public ResponseEntity<?> updateAdminSalary(@PathVariable java.util.UUID userId, @RequestBody java.util.Map<String, java.math.BigDecimal> request) {
+        var user = userRepository.findById(userId).orElseThrow();
+        var employee = employeeRepository.findByUserEmail(user.getEmail()).orElseThrow();
+        employee.setBaseSalary(request.get("baseSalary"));
+        employeeRepository.save(employee);
         return ResponseEntity.ok(user);
     }
 }
