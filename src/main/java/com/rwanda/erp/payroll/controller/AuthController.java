@@ -19,6 +19,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Controller responsible for user authentication and registration.
  * Handles the generation of JWT tokens.
  */
+import com.rwanda.erp.payroll.dto.RegisterRequest;
+import com.rwanda.erp.payroll.entity.Employee;
+import com.rwanda.erp.payroll.repository.EmployeeRepository;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -27,12 +31,13 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final EmployeeRepository employeeRepository;
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
     @Operation(summary = "Register new employee", description = "Registers a new user and returns a JWT token. Automatically assigns EMPLOYEE role.")
-    public ResponseEntity<?> register(@Valid @RequestBody User request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             return ResponseEntity.badRequest().body("Error: Email is already registered!");
         }
@@ -43,6 +48,15 @@ public class AuthController {
                 .role("EMPLOYEE") // Force all public registrations to be EMPLOYEE
                 .build();
         userRepository.save(user);
+        
+        var employee = new Employee();
+        employee.setFirstName(request.getFirstName());
+        employee.setLastName(request.getLastName());
+        employee.setEmail(request.getEmail());
+        employee.setUser(user);
+        employee.setStatus("Active");
+        employeeRepository.save(employee);
+        
         var jwtToken = jwtUtils.generateToken(user);
         return ResponseEntity.ok(AuthResponse.builder().token(jwtToken).build());
     }

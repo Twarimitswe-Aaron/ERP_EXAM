@@ -6,6 +6,8 @@
   import Input from '$lib/components/Input.svelte';
   import Button from '$lib/components/Button.svelte';
 
+  let firstName = $state('');
+  let lastName = $state('');
   let email = $state('');
   let password = $state('');
   let error = $state('');
@@ -26,7 +28,7 @@
   let passwordValid = $derived(password.length === 0 || (passwordLength && passwordUpper && passwordDigit && passwordSpecial));
 
   let isFormValid = $derived(
-    email.length > 0 && password.length > 0 && !emailError && passwordValid
+    firstName.length > 0 && lastName.length > 0 && email.length > 0 && password.length > 0 && !emailError && passwordValid
   );
 
   async function handleRegister() {
@@ -35,7 +37,7 @@
     error = '';
     loading = true;
     try {
-      const response = await api.post('/auth/register', { email, password });
+      const response = await api.post('/auth/register', { firstName, lastName, email, password });
       if (response.token) {
         setAuthToken(response.token);
         goto('/dashboard');
@@ -65,6 +67,10 @@
       {/if}
 
       <form onsubmit={(e) => { e.preventDefault(); handleRegister(); }}>
+        <div class="grid grid-cols-2 gap-4">
+          <Input id="firstName" type="text" label="First Name" bind:value={firstName} required />
+          <Input id="lastName" type="text" label="Last Name" bind:value={lastName} required />
+        </div>
         <Input id="email" type="email" label="Email Address" bind:value={email} error={emailError} required />
         <Input id="password" type="password" label="Password" bind:value={password} required />
         
