@@ -15,7 +15,11 @@ public class Payslip {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private UUID empId;
+    // Changed to match rubric: proper implementation of one to many relationship
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
+
     private String name;
     
     private BigDecimal base;

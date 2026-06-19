@@ -17,7 +17,7 @@ BEGIN
     FROM employee e
     JOIN employment emp ON emp.employee_id = e.id
     JOIN institution i ON emp.institution_id = i.id
-    WHERE e.id = NEW.emp_id;
+    WHERE e.id = NEW.employee_id;
 
     -- Update status to Paid
     NEW.status := 'Paid';
@@ -27,11 +27,11 @@ BEGIN
     msg_body := 'Dear ' || COALESCE(emp_first_name, 'Employee') || 
                 ' Your salary of ' || NEW.payroll_month || '/' || NEW.payroll_year || 
                 ' from ' || COALESCE(inst_name, 'Institution') || ' ' || NEW.net_salary || 
-                ' has been credited to your ' || NEW.emp_id || ' account Successfully.';
+                ' has been credited to your ' || NEW.employee_id || ' account Successfully.';
 
     -- Insert into message table
-    INSERT INTO message (id, employee_id, content, sent_at, payroll_month, payroll_year)
-    VALUES (gen_random_uuid(), NEW.emp_id, msg_body, CURRENT_TIMESTAMP, NEW.payroll_month, NEW.payroll_year);
+    INSERT INTO message (id, employee_id, text, date_time, payroll_month, payroll_year)
+    VALUES (gen_random_uuid(), NEW.employee_id, msg_body, CURRENT_TIMESTAMP, NEW.payroll_month, NEW.payroll_year);
 
     RETURN NEW;
 END;
