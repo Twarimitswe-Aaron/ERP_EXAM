@@ -67,6 +67,12 @@ public class PayrollService {
             BigDecimal other = calculateAmount(baseSalary, othersRate);
             
             BigDecimal totalDeductions = tax.add(pension).add(medical).add(other);
+            
+            // Exam Rule: Make sure that all deductions don't exceed the Gross salary
+            if (totalDeductions.compareTo(gross) > 0) {
+                totalDeductions = gross;
+            }
+
             // NetSalary = Gross Salary - Total Deductions (as proven by the 57,800 example in the prompt)
             BigDecimal netSalary = gross.subtract(totalDeductions);
 

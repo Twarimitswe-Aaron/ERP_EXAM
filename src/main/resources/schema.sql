@@ -30,8 +30,8 @@ BEGIN
                 ' has been credited to your ' || NEW.emp_id || ' account Successfully.';
 
     -- Insert into message table
-    INSERT INTO message (id, employee_id, content, sent_at)
-    VALUES (gen_random_uuid(), NEW.emp_id, msg_body, CURRENT_TIMESTAMP);
+    INSERT INTO message (id, employee_id, content, sent_at, payroll_month, payroll_year)
+    VALUES (gen_random_uuid(), NEW.emp_id, msg_body, CURRENT_TIMESTAMP, NEW.payroll_month, NEW.payroll_year);
 
     RETURN NEW;
 END;

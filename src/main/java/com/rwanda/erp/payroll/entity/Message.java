@@ -13,7 +13,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private Long employeeId;
+    private UUID employeeId;
     
     @Column(name = "payroll_month")
     private Integer month;
