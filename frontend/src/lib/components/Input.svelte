@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { slide } from 'svelte/transition';
+
   let { 
     id, 
     type = 'text', 
@@ -28,6 +30,6 @@
     class="w-full px-3 py-2 border {error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-rwanda-blue'} rounded-md focus:outline-none focus:ring-2 focus:border-transparent transition-colors bg-white"
   />
   {#if error}
-    <p class="mt-1 text-sm text-red-500">{error}</p>
+    <p transition:slide={{ duration: 200 }} class="mt-1 text-sm text-red-500">{error}</p>
   {/if}
 </div>
