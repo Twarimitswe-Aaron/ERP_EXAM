@@ -43,7 +43,7 @@ public class PayrollService {
     @Transactional
     public void generateAdminPayrolls(Integer month, Integer year) {
         // Super admin processes payroll for ALL Admins across ALL institutions
-        List<Employment> adminEmployments = employeeRepository.findAll().stream()
+        List<Employment> adminEmployments = employeeService.getAllEmployees().stream()
                 .filter(emp -> "Active".equals(emp.getStatus()) && emp.getEmployment() != null)
                 .filter(emp -> emp.getUser() != null && "ADMIN".equals(emp.getUser().getRole()))
                 .map(Employee::getEmployment)
