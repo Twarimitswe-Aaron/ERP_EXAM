@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,9 +30,6 @@ public class User implements UserDetails {
     private String email;
 
     @Column(nullable = false)
-    @Size(min = 5, message = "Password must be at least 5 characters long")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{5,}$", 
-             message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character")
     private String password;
 
     @Column(nullable = false)
