@@ -33,7 +33,11 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private String role; // e.g., ADMIN, EMPLOYEE
+    private String role; // e.g., SUPER_ADMIN, ADMIN, EMPLOYEE
+
+    @ManyToOne
+    @JoinColumn(name = "institution_id")
+    private Institution institution; // Nullable for SUPER_ADMIN, required for others
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

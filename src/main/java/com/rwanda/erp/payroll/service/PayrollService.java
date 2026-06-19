@@ -3,8 +3,10 @@ package com.rwanda.erp.payroll.service;
 import com.rwanda.erp.payroll.entity.Deduction;
 import com.rwanda.erp.payroll.entity.DeductionType;
 import com.rwanda.erp.payroll.entity.Employment;
-import com.rwanda.erp.payroll.entity.Payslip;
+import com.rwanda.erp.payroll.entity.*;
 import com.rwanda.erp.payroll.repository.PayslipRepository;
+import com.rwanda.erp.payroll.repository.SalaryScaleRepository;
+import com.rwanda.erp.payroll.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +24,16 @@ public class PayrollService {
     private final EmployeeService employeeService;
     private final DeductionService deductionService;
     private final PayslipRepository payslipRepository;
+    private final SalaryScaleRepository salaryScaleRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public void generatePayroll(Integer month, Integer year) {
-        List<Employment> activeEmployments = employeeService.getActiveEmployments();
+    public void generatePayroll(Integer month, Integer year, String adminEmail) {
+        User admin = userRepository.findByEmail(adminEmail).orElseThrow();
+        Institution institution = admin.getInstitution();
+        if (institution == null) throw new IllegalArgumentException("Admin has no assigned institution");
+
+        List<Employment> activeEmployments = employeeService.getActiveEmploymentsByInstitution(institution);
         List<Deduction> deductions = deductionService.getAllDeductions();
 
         BigDecimal houseRate = getPercentage(deductionService.getDeductionByType(DeductionType.HOUSE, deductions));
@@ -43,8 +51,11 @@ public class PayrollService {
                 continue; // Skip already generated
             }
 
-            BigDecimal baseSalary = employment.getBaseSalary();
-            if (baseSalary == null) baseSalary = BigDecimal.ZERO;
+            SalaryScale scale = salaryScaleRepository.findByInstitutionIdAndDepartmentAndPosition(
+                institution.getId(), employment.getDepartment(), employment.getPosition()
+            ).orElseThrow(() -> new EntityNotFoundException("No salary scale configured for " + employment.getDepartment() + " - " + employment.getPosition()));
+
+            BigDecimal baseSalary = scale.getBaseSalary();
 
             BigDecimal house = calculateAmount(baseSalary, houseRate);
             BigDecimal transport = calculateAmount(baseSalary, transportRate);

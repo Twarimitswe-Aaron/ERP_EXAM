@@ -32,8 +32,11 @@ public class EmployeeService {
     }
 
     @Cacheable(value = "activeEmployees")
-    public List<Employment> getActiveEmployments() {
-        return employmentRepository.findByStatus("Active");
+    public List<Employment> getActiveEmploymentsByInstitution(com.rwanda.erp.payroll.entity.Institution institution) {
+        return employeeRepository.findByEmploymentInstitutionAndEmploymentStatus(institution, "Active")
+                .stream()
+                .map(Employee::getEmployment)
+                .toList();
     }
 
     @CacheEvict(value = "activeEmployees", allEntries = true)

@@ -3,24 +3,17 @@ package com.rwanda.erp.payroll.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.UUID;
 
 @Entity
-@Table(name = "employment")
 @Data
-public class Employment {
-
+@Table(uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"institution_id", "department", "position"})
+})
+public class SalaryScale {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    @OneToOne
-    @JoinColumn(name = "employee_id")
-    @JsonIgnore
-    private Employee employee;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "institution_id")
@@ -35,7 +28,5 @@ public class Employment {
     private Position position;
 
     @Column(nullable = false)
-    private LocalDate joiningDate;
-
-    private String status; // "Active" or "Inactive"
+    private BigDecimal baseSalary;
 }
