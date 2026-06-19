@@ -42,7 +42,8 @@ public class EmployeeController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Employee> updateEmployment(
             @PathVariable UUID id, 
-            @RequestBody Employment employment) {
-        return ResponseEntity.ok(employeeService.updateEmployment(id, employment));
+            @RequestBody com.rwanda.erp.payroll.dto.UpdateEmploymentRequest request,
+            org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(employeeService.updateEmployment(id, request, authentication.getName()));
     }
 }

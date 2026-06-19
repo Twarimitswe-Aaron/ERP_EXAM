@@ -3,11 +3,14 @@
   import { goto } from '$app/navigation';
   import { getAuthToken, removeAuthToken } from '$lib/api';
   import Button from '$lib/components/Button.svelte';
+  import Card from '$lib/components/Card.svelte';
 
   import EmployeesView from '$lib/components/views/EmployeesView.svelte';
   import PayrollView from '$lib/components/views/PayrollView.svelte';
   import PayslipsView from '$lib/components/views/PayslipsView.svelte';
   import MessagesView from '$lib/components/views/MessagesView.svelte';
+  import InstitutionsView from '$lib/components/views/InstitutionsView.svelte';
+  import AdminsView from '$lib/components/views/AdminsView.svelte';
 
   let role = $state<string | null>(null);
   let userEmail = $state<string | null>(null);
@@ -53,9 +56,9 @@
     {:else}
       {#if role === 'SUPER_ADMIN'}
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Super Admin Dashboard</h1>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <Card title="Institutions">Manage Institutions</Card>
-           <Card title="Admins">Manage Admins</Card>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+           <InstitutionsView />
+           <AdminsView />
         </div>
       {:else if role === 'ADMIN'}
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Institution Dashboard</h1>

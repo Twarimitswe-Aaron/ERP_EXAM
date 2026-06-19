@@ -35,20 +35,32 @@ public class EmployeeService {
                 .toList();
     }
 
-    public Employee updateEmployment(UUID employeeId, Employment employmentDetails) {
+    private final com.rwanda.erp.payroll.repository.UserRepository userRepository;
+
+    public Employee updateEmployment(UUID employeeId, com.rwanda.erp.payroll.dto.UpdateEmploymentRequest request, String adminEmail) {
         Employee employee = employeeRepository.findById(employeeId).orElseThrow();
+        com.rwanda.erp.payroll.entity.User adminUser = userRepository.findByEmail(adminEmail).orElseThrow();
+        
         Employment employment = employee.getEmployment();
         if (employment == null) {
             employment = new Employment();
             employment.setEmployee(employee);
+            // Assign the employee to the admin's institution
+            employment.setInstitution(adminUser.getInstitution());
+            
+            // Also update the User entity to belong to this institution
+            if (employee.getUser() != null) {
+                employee.getUser().setInstitution(adminUser.getInstitution());
+            }
         }
-        employment.setDepartment(employmentDetails.getDepartment());
-        employment.setPosition(employmentDetails.getPosition());
-        employment.setJoiningDate(employmentDetails.getJoiningDate());
+        
+        employment.setDepartment(request.getDepartment());
+        employment.setPosition(request.getPosition());
+        employment.setJoiningDate(request.getJoiningDate());
         
         employee.setEmployment(employment);
-        employee.setBaseSalary(employmentDetails.getEmployee() != null ? employmentDetails.getEmployee().getBaseSalary() : employee.getBaseSalary());
-        employee.setStatus(employmentDetails.getEmployee() != null ? employmentDetails.getEmployee().getStatus() : employee.getStatus());
+        employee.setBaseSalary(request.getBaseSalary() != null ? request.getBaseSalary() : employee.getBaseSalary());
+        employee.setStatus(request.getStatus() != null ? request.getStatus() : employee.getStatus());
         return employeeRepository.save(employee);
     }
 

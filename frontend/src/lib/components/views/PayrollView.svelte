@@ -14,7 +14,7 @@
     message = '';
     try {
       const response = await api.post('/payroll/generate', { month, year });
-      message = 'Payroll generated successfully!';
+      message = '✅ Payroll generated successfully for all Active employees with a configured Base Salary!';
     } catch (err: any) {
       message = err.message || 'Failed to generate payroll.';
     } finally {
