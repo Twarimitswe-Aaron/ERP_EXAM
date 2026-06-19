@@ -3,14 +3,17 @@
   import { api } from '$lib/api';
   import Card from '$lib/components/Card.svelte';
   
-  let payslips = $state([]);
+  let payslips = $state<any[]>([]);
   let loading = $state(true);
+  let error = $state('');
   
   onMount(async () => {
     try {
-      payslips = await api.get('/payroll/my-payslips');
-    } catch (e) {
+      const res = await api.get('/payroll/my-payslips');
+      payslips = Array.isArray(res) ? res : [];
+    } catch (e: any) {
       console.error(e);
+      error = "Could not load payslips. Please check if your account is fully set up.";
     } finally {
       loading = false;
     }
@@ -20,6 +23,8 @@
 <Card title="My Payslips">
   {#if loading}
     <p>Loading payslips...</p>
+  {:else if error}
+    <p class="text-red-500">{error}</p>
   {:else if payslips.length === 0}
     <p class="text-gray-500">You have no payslips.</p>
   {:else}

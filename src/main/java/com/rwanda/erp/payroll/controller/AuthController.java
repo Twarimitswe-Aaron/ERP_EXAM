@@ -57,7 +57,10 @@ public class AuthController {
         employee.setStatus("Active");
         employeeRepository.save(employee);
         
-        var jwtToken = jwtUtils.generateToken(user);
+        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+        extraClaims.put("role", user.getRole());
+        
+        var jwtToken = jwtUtils.generateToken(extraClaims, user);
         return ResponseEntity.ok(AuthResponse.builder().token(jwtToken).build());
     }
 
@@ -72,7 +75,11 @@ public class AuthController {
         );
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
-        var jwtToken = jwtUtils.generateToken(user);
+        
+        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+        extraClaims.put("role", user.getRole());
+        
+        var jwtToken = jwtUtils.generateToken(extraClaims, user);
         return ResponseEntity.ok(AuthResponse.builder().token(jwtToken).build());
     }
 }
