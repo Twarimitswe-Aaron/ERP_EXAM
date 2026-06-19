@@ -3,6 +3,7 @@ package com.rwanda.erp.payroll.service;
 import com.rwanda.erp.payroll.entity.Deduction;
 import com.rwanda.erp.payroll.repository.DeductionRepository;
 import lombok.RequiredArgsConstructor;
+import com.rwanda.erp.payroll.entity.DeductionType;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class DeductionService {
 
     @CacheEvict(value = "deductions", allEntries = true)
     public Deduction saveDeduction(Deduction deduction) {
-        Deduction existing = deductionRepository.findByName(deduction.getName());
+        Deduction existing = deductionRepository.findByType(deduction.getType());
         if (existing != null) {
             existing.setPercentage(deduction.getPercentage());
             return deductionRepository.save(existing);
@@ -30,9 +31,9 @@ public class DeductionService {
         return deductionRepository.findAll();
     }
 
-    public Deduction getDeductionByName(String name, List<Deduction> deductions) {
+    public Deduction getDeductionByType(DeductionType type, List<Deduction> deductions) {
         return deductions.stream()
-                .filter(d -> d.getName().equalsIgnoreCase(name))
+                .filter(d -> d.getType() == type)
                 .findFirst()
                 .orElse(null);
     }

@@ -23,11 +23,15 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody User request) {
+    public ResponseEntity<?> register(@RequestBody User request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body("Error: Email is already registered!");
+        }
+
         var user = User.builder()
-                .username(request.getUsername())
+                .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole() != null ? request.getRole() : "EMPLOYEE")
+                .role("EMPLOYEE") // Force all public registrations to be EMPLOYEE
                 .build();
         userRepository.save(user);
         var jwtToken = jwtUtils.generateToken(user);
@@ -38,11 +42,11 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
+                        request.getEmail(),
                         request.getPassword()
                 )
         );
-        var user = userRepository.findByUsername(request.getUsername())
+        var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
         var jwtToken = jwtUtils.generateToken(user);
         return ResponseEntity.ok(AuthResponse.builder().token(jwtToken).build());

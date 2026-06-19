@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/payroll")
@@ -26,9 +27,9 @@ public class PayrollController {
         return ResponseEntity.ok("Payroll generation triggered for " + month + "/" + year);
     }
 
-    @GetMapping("/employee/{empId}")
-    public ResponseEntity<List<Payslip>> getPayslips(@PathVariable UUID empId) {
-        // Here we could add authorization to ensure the logged in user matches empId
-        return ResponseEntity.ok(payrollService.getPayslips(empId));
+    @GetMapping("/my-payslips")
+    public ResponseEntity<List<Payslip>> getMyPayslips(Authentication authentication) {
+        String email = authentication.getName(); // JWT subject is the email
+        return ResponseEntity.ok(payrollService.getMyPayslips(email));
     }
 }

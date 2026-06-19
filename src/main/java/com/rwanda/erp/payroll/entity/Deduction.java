@@ -15,8 +15,9 @@ public class Deduction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Enumerated(EnumType.STRING)
     @Column(unique = true, nullable = false)
-    private String name; // e.g., EmployeeTax, Pension, MedicalInsurance, Others, House, Transport
+    private DeductionType type; // e.g., EMPLOYEE_TAX, PENSION
 
     @Column(nullable = false)
     private BigDecimal percentage;

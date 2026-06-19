@@ -1,6 +1,7 @@
 package com.rwanda.erp.payroll.service;
 
 import com.rwanda.erp.payroll.entity.Deduction;
+import com.rwanda.erp.payroll.entity.DeductionType;
 import com.rwanda.erp.payroll.entity.Employment;
 import com.rwanda.erp.payroll.entity.Payslip;
 import com.rwanda.erp.payroll.repository.PayslipRepository;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,12 +28,12 @@ public class PayrollService {
         List<Employment> activeEmployments = employeeService.getActiveEmployments();
         List<Deduction> deductions = deductionService.getAllDeductions();
 
-        BigDecimal houseRate = getPercentage(deductionService.getDeductionByName("House", deductions));
-        BigDecimal transportRate = getPercentage(deductionService.getDeductionByName("Transport", deductions));
-        BigDecimal taxRate = getPercentage(deductionService.getDeductionByName("EmployeeTax", deductions));
-        BigDecimal pensionRate = getPercentage(deductionService.getDeductionByName("Pension", deductions));
-        BigDecimal medicalRate = getPercentage(deductionService.getDeductionByName("MedicalInsurance", deductions));
-        BigDecimal othersRate = getPercentage(deductionService.getDeductionByName("Others", deductions));
+        BigDecimal houseRate = getPercentage(deductionService.getDeductionByType(DeductionType.HOUSE, deductions));
+        BigDecimal transportRate = getPercentage(deductionService.getDeductionByType(DeductionType.TRANSPORT, deductions));
+        BigDecimal taxRate = getPercentage(deductionService.getDeductionByType(DeductionType.EMPLOYEE_TAX, deductions));
+        BigDecimal pensionRate = getPercentage(deductionService.getDeductionByType(DeductionType.PENSION, deductions));
+        BigDecimal medicalRate = getPercentage(deductionService.getDeductionByType(DeductionType.MEDICAL_INSURANCE, deductions));
+        BigDecimal othersRate = getPercentage(deductionService.getDeductionByType(DeductionType.OTHERS, deductions));
 
         for (Employment employment : activeEmployments) {
             UUID empId = employment.getEmployee().getId();
@@ -78,6 +80,14 @@ public class PayrollService {
 
     public List<Payslip> getPayslips(UUID empId) {
         return payslipRepository.findByEmpId(empId);
+    }
+
+    public List<Payslip> getMyPayslips(String email) {
+        Employee employee = employeeService.findByUserEmail(email);
+        if (employee == null) {
+            throw new EntityNotFoundException("No employee profile found for user: " + email);
+        }
+        return payslipRepository.findByEmpId(employee.getId());
     }
 
     private BigDecimal getPercentage(Deduction deduction) {

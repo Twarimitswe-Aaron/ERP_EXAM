@@ -24,4 +24,8 @@ public class Employee {
     
     @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Employment employment;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }
