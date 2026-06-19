@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: payroll
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payroll_db
+    username: admin
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  sql:
+    init:
+      mode: always # To run schema.sql for the trigger setup
+
+jwt:
+  secret: aV2dCqA8xK7yN3hL5wP8bE2mT9uR4fG6jH1kL3oM5nP7qS9vW2xZ4cE6gI8jK0
+  expiration: 86400000 # 24 hours
